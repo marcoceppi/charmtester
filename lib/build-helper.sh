@@ -2,6 +2,8 @@
 
 set -u
 
+[ -f /usr/share/charm-helper/bash/file.bash ] && . /usr/share/charm-helper/bash/file.bash || . $HOME/lib/ch-file.sh
+
 cryptozoologist() {
   if [ ! -f $WORKSPACE/.crypto ]; then
     touch $WORKSPACE/.crypto
@@ -88,6 +90,20 @@ run_graph_tests() {
   echo "running test"
   for plan in `ls $WORKSPACE/testdir/plans`; do
     run_test_plan $plan
+  done
+}
+
+seed_embedded_test() {
+  charm_dir=$1
+  if [ ! -d $HOME/lib/test-seed ]; then
+    return 1 # So sorry.
+  fi
+
+  local charm=$charm_name
+
+  for t in $(ls $HOME/lib/test-seed/*.test); do
+    # Shut up, charm-helpers are cool.
+    ch_template_file 755 nobody:nobody $t $charm_dir/tests/$(basename $t) "charm"
   done
 }
 
